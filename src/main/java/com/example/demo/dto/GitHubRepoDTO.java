@@ -1,7 +1,13 @@
 package com.example.demo.dto;
 
-import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.util.List;
+@Getter
+@Setter
+@NoArgsConstructor
 public class GitHubRepoDTO {
     private String name;
     private String ownerLogin;

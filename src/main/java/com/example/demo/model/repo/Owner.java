@@ -1,5 +1,12 @@
 package com.example.demo.model.repo;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class Owner {
     public String login;
     public int id;
