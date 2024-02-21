@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GitHubBranchDTO {
-    String name;
-    String commitSha;
+    private String name;
+    private String commitSha;
 }

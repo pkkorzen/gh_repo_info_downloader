@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Commit {
-    public String sha;
-    public String url;
+    private String sha;
+    private String url;
 }
