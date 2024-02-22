@@ -4,6 +4,7 @@ import com.example.demo.converters.GitHubBranchDtoConverter;
 import com.example.demo.converters.GitHubRepoDtoConverter;
 import com.example.demo.dto.GitHubBranchDTO;
 import com.example.demo.dto.GitHubRepoDTO;
+import com.example.demo.exceptions.UserNotFoundException;
 import com.example.demo.model.branch.Branch;
 import com.example.demo.model.repo.GithubRepo;
 import com.example.demo.services.GitHubService;
@@ -12,9 +13,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class GitHubServiceImpl implements GitHubService {
@@ -34,20 +39,25 @@ public class GitHubServiceImpl implements GitHubService {
     }
 
     @Override
-    public List<GitHubRepoDTO> findReposByUsername(String username) {
-        ResponseEntity<GithubRepo[]> responseEntity = restTemplate.getForEntity(gitHubApiAddress + "/users/" +
-                username + "/repos", GithubRepo[].class);
-        GithubRepo[] githubReposArray = responseEntity.getBody();
-        List<GitHubRepoDTO> gitHubRepoDTOS = new ArrayList<>();
-        if (Objects.nonNull(githubReposArray)) {
-            gitHubRepoDTOS = Arrays
-                    .stream(githubReposArray)
-                    .filter(repo -> !repo.isFork())
-                    .map(repo -> gitHubRepoDtoConverter.apply(repo,
-                            findBranchesByUsernameAndRepo(repo.getOwner().getLogin(), repo.getName())))
-                    .toList();
+    public List<GitHubRepoDTO> findReposByUsername(String username) throws UserNotFoundException {
+        try {
+            ResponseEntity<GithubRepo[]> responseEntity = restTemplate.getForEntity(gitHubApiAddress + "/users/" +
+                    username + "/repos", GithubRepo[].class);
+            GithubRepo[] githubReposArray = responseEntity.getBody();
+            List<GitHubRepoDTO> gitHubRepoDTOS = new ArrayList<>();
+            if (Objects.nonNull(githubReposArray)) {
+                gitHubRepoDTOS = Arrays
+                        .stream(githubReposArray)
+                        .filter(repo -> !repo.isFork())
+                        .map(repo -> gitHubRepoDtoConverter.apply(repo,
+                                findBranchesByUsernameAndRepo(repo.getOwner().getLogin(), repo.getName())))
+                        .toList();
+            }
+            return gitHubRepoDTOS;
         }
-        return gitHubRepoDTOS;
+        catch (final HttpClientErrorException e) {
+            throw new UserNotFoundException("Github user " +username+" not found");
+        }
     }
 
     @Override

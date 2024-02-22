@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.GitHubRepoDTO;
+import com.example.demo.exceptions.UserNotFoundException;
 import com.example.demo.services.GitHubService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -17,7 +18,7 @@ public class GitHubRepoController {
     GitHubService gitHubService;
 
     @RequestMapping(value = "/repos/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
-    List<GitHubRepoDTO> getUserRepos(@PathVariable String username) {
+    List<GitHubRepoDTO> getUserRepos(@PathVariable String username) throws UserNotFoundException {
         return gitHubService.findReposByUsername(username);
     }
 }
