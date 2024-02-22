@@ -10,7 +10,7 @@ import lombok.Setter;
 public class Branch {
     private String name;
     private Commit commit;
-    private boolean myprotected;
+    private boolean isMyProtected;
     private Protection protection;
-    private String protection_url;
+    private String protectionUrl;
 }
