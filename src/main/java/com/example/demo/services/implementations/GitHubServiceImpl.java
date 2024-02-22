@@ -54,14 +54,12 @@ public class GitHubServiceImpl implements GitHubService {
                         .toList();
             }
             return gitHubRepoDTOS;
-        }
-        catch (final HttpClientErrorException e) {
-            throw new UserNotFoundException("Github user " +username+" not found");
+        } catch (final HttpClientErrorException e) {
+            throw new UserNotFoundException("GitHub user: " + username + " not found");
         }
     }
 
-    @Override
-    public List<GitHubBranchDTO> findBranchesByUsernameAndRepo(String username, String repoName) {
+    private List<GitHubBranchDTO> findBranchesByUsernameAndRepo(String username, String repoName) {
         ResponseEntity<Branch[]> responseEntity = restTemplate.getForEntity(gitHubApiAddress + "/repos/" +
                 username + "/" + repoName + "/branches", Branch[].class);
         Branch[] branchesArray = responseEntity.getBody();
