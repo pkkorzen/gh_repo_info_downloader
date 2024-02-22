@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(GitHubRepoController.class)
@@ -33,7 +32,7 @@ class GitHubRepoControllerTest {
         String requestURI = END_POINT_PATH + "/" + username;
 
         Mockito.when(service.findReposByUsername(username))
-                .thenThrow(new UserNotFoundException("Github user: "+username+" not found"));
+                .thenThrow(new UserNotFoundException("Github user: " + username + " not found"));
 
         mockMvc.perform(get(requestURI))
                 .andExpect(status().isNotFound());
@@ -74,7 +73,7 @@ class GitHubRepoControllerTest {
         for (int i = 0; i < 4; i++) {
             GitHubRepoDTO gitHubRepoDTO = new GitHubRepoDTO();
             gitHubRepoDTO.setOwnerLogin(username);
-            gitHubRepoDTO.setRepositoryName("repoName" +i);
+            gitHubRepoDTO.setRepositoryName("repoName" + i);
             gitHubRepoDTO.setBranches(gitHubBranchDTOS);
             gitHubRepoDTOS.add(gitHubRepoDTO);
         }

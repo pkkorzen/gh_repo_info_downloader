@@ -5,6 +5,7 @@ import com.example.demo.model.branch.Branch;
 import org.springframework.stereotype.Component;
 
 import java.util.function.Function;
+
 @Component
 public class GitHubBranchDtoConverter implements Function<Branch, GitHubBranchDTO> {
 

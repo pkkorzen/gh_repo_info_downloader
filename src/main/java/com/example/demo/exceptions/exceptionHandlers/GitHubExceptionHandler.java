@@ -2,7 +2,6 @@ package com.example.demo.exceptions.exceptionHandlers;
 
 import com.example.demo.errors.GitHubError;
 import com.example.demo.exceptions.UserNotFoundException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
