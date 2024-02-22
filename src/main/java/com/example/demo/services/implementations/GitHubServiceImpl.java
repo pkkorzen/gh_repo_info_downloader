@@ -42,6 +42,7 @@ public class GitHubServiceImpl implements GitHubService {
         if (Objects.nonNull(githubReposArray)) {
             gitHubRepoDTOS = Arrays
                     .stream(githubReposArray)
+                    .filter(repo -> !repo.isFork())
                     .map(repo -> gitHubRepoDtoConverter.apply(repo,
                             findBranchesByUsernameAndRepo(repo.getOwner().getLogin(), repo.getName())))
                     .toList();
