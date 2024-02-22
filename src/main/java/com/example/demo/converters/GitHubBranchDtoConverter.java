@@ -11,8 +11,8 @@ public class GitHubBranchDtoConverter implements Function<Branch, GitHubBranchDT
     @Override
     public GitHubBranchDTO apply(Branch branch) {
         GitHubBranchDTO githubBranchDTO = new GitHubBranchDTO();
-        githubBranchDTO.setName(branch.getName());
-        githubBranchDTO.setCommitSha(branch.getCommit().getSha());
+        githubBranchDTO.setBranchName(branch.getName());
+        githubBranchDTO.setLastCommitSha(branch.getCommit().getSha());
         return githubBranchDTO;
     }
 }

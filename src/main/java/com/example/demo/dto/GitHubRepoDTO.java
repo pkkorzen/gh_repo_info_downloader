@@ -9,7 +9,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class GitHubRepoDTO {
-    private String name;
+    private String repositoryName;
     private String ownerLogin;
     private List<GitHubBranchDTO> branches;
 }

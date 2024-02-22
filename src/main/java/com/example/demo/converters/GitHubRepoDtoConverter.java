@@ -14,7 +14,7 @@ public class GitHubRepoDtoConverter implements BiFunction<GithubRepo, List<GitHu
     @Override
     public GitHubRepoDTO apply(GithubRepo githubRepo, List<GitHubBranchDTO> gitHubBranchDTOs) {
         GitHubRepoDTO githubRepoDTO = new GitHubRepoDTO();
-        githubRepoDTO.setName(githubRepo.getName());
+        githubRepoDTO.setRepositoryName(githubRepo.getName());
         githubRepoDTO.setOwnerLogin(githubRepo.getOwner().getLogin());
         githubRepoDTO.setBranches(gitHubBranchDTOs);
         return githubRepoDTO;
