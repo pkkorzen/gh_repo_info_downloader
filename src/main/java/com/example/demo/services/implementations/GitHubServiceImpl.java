@@ -56,7 +56,11 @@ public class GitHubServiceImpl implements GitHubService {
             }
             return gitHubRepoDTOS;
         } catch (final HttpClientErrorException e) {
-            throw new UserNotFoundException("GitHub user: " + username + " not found");
+            if (e.getStatusCode().value() == 404) {
+                throw new UserNotFoundException("GitHub user: " + username + " not found");
+            } else {
+                throw e;
+            }
         }
     }
 
