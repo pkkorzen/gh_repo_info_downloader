@@ -123,9 +123,9 @@ public class GitHubServiceImpl implements GitHubService {
         return url;
     }
 
-    private static <T> void transformArrayIntoList(T[] branchesArray, List<T> branches) {
-        if (isArrayPopulated(branchesArray)) {
-            branches.addAll(Arrays.asList(branchesArray));
+    private static <T> void transformArrayIntoList(T[] array, List<T> list) {
+        if (isArrayPopulated(array)) {
+            list.addAll(Arrays.asList(array));
         }
     }
 
