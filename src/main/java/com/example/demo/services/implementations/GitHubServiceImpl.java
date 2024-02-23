@@ -28,14 +28,16 @@ public class GitHubServiceImpl implements GitHubService {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
-    private GitHubRepoDtoConverter gitHubRepoDtoConverter;
+    private final GitHubRepoDtoConverter gitHubRepoDtoConverter;
+
+    private final GitHubBranchDtoConverter gitHubBranchDtoConverter;
 
     @Autowired
-    private GitHubBranchDtoConverter gitHubBranchDtoConverter;
-
-    public GitHubServiceImpl(RestTemplateBuilder restTemplateBuilder) {
+    public GitHubServiceImpl(RestTemplateBuilder restTemplateBuilder, GitHubRepoDtoConverter gitHubRepoDtoConverter,
+                             GitHubBranchDtoConverter gitHubBranchDtoConverter) {
         this.restTemplate = restTemplateBuilder.build();
+        this.gitHubRepoDtoConverter = gitHubRepoDtoConverter;
+        this.gitHubBranchDtoConverter = gitHubBranchDtoConverter;
     }
 
     @Override
@@ -67,7 +69,7 @@ public class GitHubServiceImpl implements GitHubService {
         if (Objects.nonNull(branchesArray)) {
             gitHubBranchDTOS = Arrays
                     .stream(branchesArray)
-                    .map(branch -> gitHubBranchDtoConverter.apply(branch))
+                    .map(gitHubBranchDtoConverter)
                     .toList();
         }
         return gitHubBranchDTOS;

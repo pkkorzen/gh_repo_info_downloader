@@ -14,8 +14,12 @@ import java.util.List;
 @RestController
 public class GitHubRepoController {
 
+    private final GitHubService gitHubService;
+
     @Autowired
-    GitHubService gitHubService;
+    public GitHubRepoController(GitHubService gitHubService) {
+        this.gitHubService = gitHubService;
+    }
 
     @RequestMapping(value = "/repos/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     List<GitHubRepoDTO> getUserRepos(@PathVariable String username) throws UserNotFoundException {
