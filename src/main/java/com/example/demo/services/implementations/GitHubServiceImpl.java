@@ -16,15 +16,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class GitHubServiceImpl implements GitHubService {
     @Value("${github.api.address}")
     private String gitHubApiAddress;
+
+    @Value("${results.per.page}")
+    private String resultsPerPage;
 
     private final RestTemplate restTemplate;
 
@@ -43,13 +44,11 @@ public class GitHubServiceImpl implements GitHubService {
     @Override
     public List<GitHubRepoDTO> findReposByUsername(String username) throws UserNotFoundException {
         try {
-            ResponseEntity<GithubRepo[]> responseEntity = restTemplate.getForEntity(gitHubApiAddress + "/users/" +
-                    username + "/repos", GithubRepo[].class);
-            GithubRepo[] githubReposArray = responseEntity.getBody();
+            List<GithubRepo> githubRepos = getRepos(username);
             List<GitHubRepoDTO> gitHubRepoDTOS = new ArrayList<>();
-            if (Objects.nonNull(githubReposArray)) {
-                gitHubRepoDTOS = Arrays
-                        .stream(githubReposArray)
+            if (!githubRepos.isEmpty()) {
+                gitHubRepoDTOS = githubRepos
+                        .stream()
                         .filter(repo -> !repo.isFork())
                         .map(repo -> gitHubRepoDtoConverter.apply(repo,
                                 findBranchesByUsernameAndRepo(repo.getOwner().getLogin(), repo.getName())))
@@ -62,16 +61,102 @@ public class GitHubServiceImpl implements GitHubService {
     }
 
     private List<GitHubBranchDTO> findBranchesByUsernameAndRepo(String username, String repoName) {
-        ResponseEntity<Branch[]> responseEntity = restTemplate.getForEntity(gitHubApiAddress + "/repos/" +
-                username + "/" + repoName + "/branches", Branch[].class);
-        Branch[] branchesArray = responseEntity.getBody();
+        List<Branch> branches = getBranches(username, repoName);
         List<GitHubBranchDTO> gitHubBranchDTOS = new ArrayList<>();
-        if (Objects.nonNull(branchesArray)) {
-            gitHubBranchDTOS = Arrays
-                    .stream(branchesArray)
+        if (!branches.isEmpty()) {
+            gitHubBranchDTOS = branches
+                    .stream()
                     .map(gitHubBranchDtoConverter)
                     .toList();
         }
         return gitHubBranchDTOS;
+    }
+
+    private List<GithubRepo> getRepos(String username) {
+        String url = gitHubApiAddress + "/users/" + username + "/repos?per_page=" + resultsPerPage;
+        String nextPattern = "rel=\"next\"";
+        boolean pagesRemaining = true;
+        List<GithubRepo> repos = new ArrayList<>();
+
+        while (pagesRemaining) {
+            ResponseEntity<GithubRepo[]> responseEntity = restTemplate.getForEntity(url, GithubRepo[].class);
+            GithubRepo[] reposArray = responseEntity.getBody();
+
+            transformArrayIntoList(reposArray, repos);
+
+            List<String> links = getHeadersLinks(responseEntity);
+            Map<String, String> linksMap = createLinksMap(links);
+
+            pagesRemaining = arePagesRemaining(links, linksMap, nextPattern);
+
+            url = updateUrl(pagesRemaining, url, linksMap, nextPattern);
+        }
+        return repos;
+    }
+
+    private List<Branch> getBranches(String username, String repoName) {
+        String url = gitHubApiAddress + "/repos/" + username + "/" + repoName + "/branches?per_page=" + resultsPerPage;
+        String nextPattern = "rel=\"next\"";
+        boolean pagesRemaining = true;
+        List<Branch> branches = new ArrayList<>();
+
+        while (pagesRemaining) {
+            ResponseEntity<Branch[]> responseEntity = restTemplate.getForEntity(url, Branch[].class);
+            Branch[] branchesArray = responseEntity.getBody();
+
+            transformArrayIntoList(branchesArray, branches);
+
+            List<String> links = getHeadersLinks(responseEntity);
+            Map<String, String> linksMap = createLinksMap(links);
+
+            pagesRemaining = arePagesRemaining(links, linksMap, nextPattern);
+
+            url = updateUrl(pagesRemaining, url, linksMap, nextPattern);
+        }
+        return branches;
+    }
+
+    private static String updateUrl(boolean pagesRemaining, String url, Map<String, String> linksMap, String nextPattern) {
+        if (pagesRemaining) {
+            url = createUrl(linksMap, nextPattern);
+        }
+        return url;
+    }
+
+    private static <T> void transformArrayIntoList(T[] branchesArray, List<T> branches) {
+        if (isArrayPopulated(branchesArray)) {
+            branches.addAll(Arrays.asList(branchesArray));
+        }
+    }
+
+    private static <T> boolean isArrayPopulated(T[] array) {
+        return Objects.nonNull(array);
+    }
+
+    private static Map<String, String> createLinksMap(List<String> links) {
+        Map<String, String> linksMap = new HashMap<>();
+        if (Objects.nonNull(links)) {
+            linksMap = Arrays.stream(links.getFirst().split(","))
+                    .toList()
+                    .stream()
+                    .collect(Collectors.toMap(link -> link.split(";")[1].replace(" ", ""),
+                            link -> link.split(";")[0]));
+        }
+        return linksMap;
+    }
+
+    private static String createUrl(Map<String, String> linksMap, String nextPattern) {
+        return linksMap.get(nextPattern)
+                .replace("<", "")
+                .replace(">", "")
+                .replace(" ", "");
+    }
+
+    private static boolean arePagesRemaining(List<String> links, Map<String, String> linksMap, String nextPattern) {
+        return Objects.nonNull(links) && !links.isEmpty() && linksMap.containsKey(nextPattern);
+    }
+
+    private static <T> List<String> getHeadersLinks(ResponseEntity<T[]> responseEntity) {
+        return responseEntity.getHeaders().get("Link");
     }
 }
