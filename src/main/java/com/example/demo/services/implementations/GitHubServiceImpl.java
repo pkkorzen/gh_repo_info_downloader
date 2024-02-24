@@ -6,7 +6,7 @@ import com.example.demo.dto.GitHubBranchDTO;
 import com.example.demo.dto.GitHubRepoDTO;
 import com.example.demo.exceptions.UserNotFoundException;
 import com.example.demo.model.branch.Branch;
-import com.example.demo.model.repo.GithubRepo;
+import com.example.demo.model.repo.Repo;
 import com.example.demo.services.GitHubService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,10 +44,10 @@ public class GitHubServiceImpl implements GitHubService {
     @Override
     public List<GitHubRepoDTO> findReposByUsername(String username) throws UserNotFoundException {
         try {
-            List<GithubRepo> githubRepos = getRepos(username);
+            List<Repo> repos = getRepos(username);
             List<GitHubRepoDTO> gitHubRepoDTOS = new ArrayList<>();
-            if (!githubRepos.isEmpty()) {
-                gitHubRepoDTOS = githubRepos
+            if (!repos.isEmpty()) {
+                gitHubRepoDTOS = repos
                         .stream()
                         .filter(repo -> !repo.isFork())
                         .map(repo -> gitHubRepoDtoConverter.apply(repo,
@@ -76,15 +76,15 @@ public class GitHubServiceImpl implements GitHubService {
         return gitHubBranchDTOS;
     }
 
-    private List<GithubRepo> getRepos(String username) {
+    private List<Repo> getRepos(String username) {
         String url = gitHubApiAddress + "/users/" + username + "/repos?per_page=" + resultsPerPage;
         String nextPattern = "rel=\"next\"";
         boolean pagesRemaining = true;
-        List<GithubRepo> repos = new ArrayList<>();
+        List<Repo> repos = new ArrayList<>();
 
         while (pagesRemaining) {
-            ResponseEntity<GithubRepo[]> responseEntity = restTemplate.getForEntity(url, GithubRepo[].class);
-            GithubRepo[] reposArray = responseEntity.getBody();
+            ResponseEntity<Repo[]> responseEntity = restTemplate.getForEntity(url, Repo[].class);
+            Repo[] reposArray = responseEntity.getBody();
 
             transformArrayIntoList(reposArray, repos);
 

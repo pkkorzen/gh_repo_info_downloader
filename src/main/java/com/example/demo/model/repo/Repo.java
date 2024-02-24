@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class GithubRepo {
+public class Repo {
     private int id;
     private String nodeId;
     private String name;
