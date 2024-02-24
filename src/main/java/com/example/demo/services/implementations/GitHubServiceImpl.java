@@ -7,7 +7,7 @@ import com.example.demo.dto.GitHubRepoDTO;
 import com.example.demo.exceptions.UserNotFoundException;
 import com.example.demo.model.branch.Branch;
 import com.example.demo.model.repo.Repo;
-import com.example.demo.paginatedresults.BranchPaginatedResults;
+import com.example.demo.paginatedresults.BranchPaginatedResult;
 import com.example.demo.paginatedresults.PaginatedResult;
 import com.example.demo.paginatedresults.ReposPaginatedResult;
 import com.example.demo.services.GitHubService;
@@ -86,7 +86,7 @@ public class GitHubServiceImpl implements GitHubService {
 
     private List<Branch> getBranches(String username, String repoName) {
         String url = gitHubApiAddress + "/repos/" + username + "/" + repoName + "/branches?per_page=" + resultsPerPage;
-        PaginatedResult<Branch> branchPaginatedResult = new BranchPaginatedResults();
+        PaginatedResult<Branch> branchPaginatedResult = new BranchPaginatedResult();
         return branchPaginatedResult.getPaginationResult(restTemplate, url);
     }
 }
